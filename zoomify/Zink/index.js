@@ -1,36 +1,21 @@
-const express = require('express');
-const {Server} = require('socket.io');
-const bodyParser = require('body-parser');
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import './index.css';
+import { BrowserRouter  } from 'react-router-dom';
+import App from './App';
+import reportWebVitals from './reportWebVitals';
 
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(
+  <React.StrictMode>
+    <BrowserRouter>
+     <App />
+    </BrowserRouter>
+   
+  </React.StrictMode>
+);
 
-const io = new Server({
-  cors:true,
-});
-const app = express();
-app.use(bodyParser.json());
-const emailToSocketMapping = new Map();
-const socketToEmailMapping = new Map()
-
-io.on("connection",socket=>{
-socket.on('join-room',(data)=>{
-  const {roomId,emailId} = data;
-  emailToSocketMapping.set(emailId,socket.id)
-  socketToEmailMapping.set(socket.id, emailId)
-  socket.join(roomId);
-  socket.emit('join-room',{roomId});
-  socket.broadcast.to(roomId).emit("user-joined",{emailId})
-});
-socket.on('call-user',(data)=>{
-  const {emailId , offer} = data;
-   const fromEmail = socketToEmailMapping.get(socket.id)
-  const socketId = emailToSocketMapping.get(emailId);
-  socket.to(socketId).emit('incomming-call',{from : fromEmail , offer})
-});
-socket.on('call-accepted',data=>{
-  const {emailId , ans} = data 
-  const socketId = emailToSocketMapping.get(emailId)
-  socket.to(socketId).emit('call-accepted',{ans})
-})
-});
-app.listen(8000,()=>console.log('Server is running on port 8000'));
-io.listen(8001)
+// If you want to start measuring performance in your app, pass a function
+// to log results (for example: reportWebVitals(console.log))
+// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
+reportWebVitals();
